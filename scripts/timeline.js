@@ -6,6 +6,7 @@
 var Timeline = (function() {
     var t = function(term) {
         this.term = term.replace('#', '%23');
+        this.div_id = 'timeline_' + term.replace('#', 'hash');
     };
 
     t.prototype.markupTweet = function(text) {
@@ -38,16 +39,12 @@ var Timeline = (function() {
            item += '</div>';
            item += '<div class="timeline tweet">' + this.markupTweet(data['text']) + '</div>';
            item += '</div>';
-        $('#' + this.getDivId()).append(item);
-    };
-
-    t.prototype.getDivId = function() {
-        return 'timeline_';
+        $('#' + this.div_id).append(item);
     };
 
     t.prototype.start = function() {
         var timeline = this;
-        $('#deck').append('<div class="timeline" id="' + this.getDivId() + '"></div>');
+        $('#deck').append('<div class="timeline" id="' + this.div_id + '"></div>');
 
         $.getJSON(
                 'http://search.twitter.com/search.json?rpp=10&callback=?&q=' + this.term,
@@ -55,7 +52,6 @@ var Timeline = (function() {
             $.each(data['results'], function(i, item) {
                 timeline.renderItem(item); 
             });
-            $('body').append('<script id="aptureScript" type="text/javascript" src="http://www.apture.com/js/apture.js?siteToken=yYBMQRz" charset="utf-8"></script>');
         });
     };
 
