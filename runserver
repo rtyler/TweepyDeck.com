@@ -1,0 +1,54 @@
+#!/usr/bin/env python
+from __future__ import with_statement
+
+import BaseHTTPServer
+import os
+
+from Cheetah import Template
+
+
+class DevServer(BaseHTTPServer.BaseHTTPRequestHandler):
+    def render_index(self):
+        template = None
+        with open('index.tmpl', 'r') as fd:
+            template = Template.Template.compile(file=fd)
+            template = template(searchList=[{'prefix' : ''}])
+            return unicode(template), 'text/html'
+
+    def render_file(self, path):
+        with open(path, 'r') as fd:
+            return fd.read(), 'text/plain'
+
+    def do_GET(self, *args, **kwargs):
+        data = None
+        mtype = 'text/html'
+        print self.__dict__
+        if self.path == '/':
+            data, mtype = self.render_index()
+        else:
+            full_path = os.path.abspath(self.path[1:])
+            if os.path.exists(full_path):
+                data, mtype = self.render_file(full_path)
+
+        if not data:
+            self.send_response(404)
+            return
+
+        self.send_response(200)
+        self.send_header('Content-Type', mtype)
+        self.send_header('Content-Length', len(data))
+        self.end_headers()
+
+        self.wfile.write(data)
+
+def main():
+    try:
+        address = ('', 8080)
+        server = BaseHTTPServer.HTTPServer(address, DevServer)
+        server.serve_forever()
+    except KeyboardInterrupt:
+        return
+    return
+
+if __name__ == '__main__':
+    main()
