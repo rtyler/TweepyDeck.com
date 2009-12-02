@@ -17,7 +17,13 @@ class DevServer(BaseHTTPServer.BaseHTTPRequestHandler):
 
     def render_file(self, path):
         with open(path, 'r') as fd:
-            return fd.read(), 'text/plain'
+            mtype = 'text/plain'
+            if path.endswith('.js'):
+                mtype = 'text/javascript'
+            elif path.endswith('.css'):
+                mtype = 'text/css'
+
+            return fd.read(), mtype
 
     def do_GET(self, *args, **kwargs):
         data = None
